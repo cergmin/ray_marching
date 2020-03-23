@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ray Marching</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="view"></canvas>
+<script>
+    let MAX_MARCHING_STEPS = 50;
+    let MAX_VIEW_DISTANCE = 255;
+    let EPSILON = 0.001;
+
+    let camera = {
+        cords: {x: 0, y: 0, z: 0},
+        direction: {x: 0, y: 0, z: 0}
+    };
+
+
+
+    let objects = [
+        {
+            cords: {x: 4, y: 2, z: 30},
+            rotation: {x: 0, y: 0, z: 0},
+            r: 3,
+            function: function (p) { // sdf - sphere
+                return Math.sqrt(
+                    Math.pow(p.x, 2) +
+                    Math.pow(p.y, 2) +
+                    Math.pow(p.z, 2)
+                ) - this.r
+            }
+        },
+        {
+            cords: {x: -4, y: -4 , z: 30},
+            rotation: {x: 0, y: 0, z: 0},
+            side: 5,
+            function: function (p) { // sdf - cube
+                return Math.max(
+                    Math.abs(p.x),
+                    Math.abs(p.y),
+                    Math.abs(p.z),
+
+                ) - this.side / 2;
+            }
+        }
+    ];
+
+    let view = document.getElementById("view");
+    let ctx = view.getContext('2d');
+
+    view.width = document.body.clientWidth;
+    view.height = document.body.clientHeight;
+
+    // Converts from degrees to radians.
+    Math.radians = function(degrees) {
+        return degrees * Math.PI / 180;
+    };
+
+    // Converts from radians to degrees.
+    Math.degrees = function(radians) {
+        return radians * 180 / Math.PI;
+    };
+
+    /**
+     * Signed Distance Function
+     *
+     * It gets object and coordinates of ray of light
+     * and returns distance to the object
+     *
+     * obj: object with personal SDF function inside
+     * x, y, z: coordinates of the ray of light
+     */
+    function SDF(obj, x, y, z){
+        return obj.function(
+            {
+                x: obj.cords.x - x,
+                y: obj.cords.y - y,
+                z: obj.cords.z - z
+            }
+        )
+    }
+
+    /**
+     * Returns the shortest SDF all objects
+     *
+     * x, y, z: coordinates of the ray of light
+     */
+    function minSDF(x, y, z) {
+        let min_dist = SDF(objects[0], x, y, z);
+
+        objects.forEach(function(obj) {
+            min_dist = Math.min(min_dist, SDF(obj, x, y, z));
+        });
+
+        return min_dist;
+    }
+
+    /**
+     * Return the normalized direction to march in from the eye point for a single pixel.
+     * fieldOfView: vertical field of view in degrees
+     * screenWidth, screenHeight: resolution of the screen
+     * pixelCordX, pixelCordY: the x, y coordinate of the pixel on the screen
+     */
+    function rayDirection(fieldOfView, screenWidth, screenHeight, pixelCordX, pixelCordY) {
+        let x = pixelCordX - screenWidth / 2;
+        let y = pixelCordY - screenHeight / 2;
+        let z = screenHeight / Math.tan(Math.radians(fieldOfView) / 2.0);
+
+        let rayLength = Math.sqrt(x * x + y * y + z * z);
+
+        return {
+            x: x / rayLength,
+            y: y / rayLength,
+            z: z / rayLength
+        }
+    }
+
+    /**
+     * Return the ray length
+     *
+     * ro: ray origin
+     * rd: ray direction
+     */
+    function rayMarch(ro, rd){
+        let depth = 0;
+
+        for(let i = 0; i < MAX_MARCHING_STEPS; i++){
+            let ray_x = ro.x + depth * rd.x;
+            let ray_y = ro.y + depth * rd.y;
+            let ray_z = ro.z + depth * rd.z;
+
+            let dist = minSDF(ray_x, ray_y, ray_z);
+
+            depth += dist;
+
+            if(dist < EPSILON || depth > MAX_VIEW_DISTANCE){
+                break
+            }
+        }
+
+        return depth;
+    }
+
+    let scale = 1;
+
+    for(let i = 0; i < view.width / scale; i++){
+        for(let j = 0; j < view.height / scale; j++){
+            let rd = rayDirection(60, view.width / scale, view.height / scale, i, j);
+            let rm = rayMarch(camera.cords, rd);
+
+            if(rm < 255){
+                ctx.fillStyle = "rgb(" + (255 - rm) + ", " + (255 - rm) + ", " + (255 - rm) + ")";
+                ctx.fillRect(i * scale, j * scale, scale, scale);
+            }
+        }
+    }
+</script>
+</body>
+</html>
