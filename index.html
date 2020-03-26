@@ -9,7 +9,7 @@
 <body>
 <canvas id="view"></canvas>
 <script>
-	let MAX_MARCHING_STEPS = 100;
+	let MAX_MARCHING_STEPS = 200;
 	let MAX_VIEW_DISTANCE = 500;
 	let EPSILON = 0.01;
 
@@ -20,31 +20,58 @@
 
 
 	let objects = [
-		{
-			cords: {x: 5, y: 15, z: 60},
-			rotation: {x: 0, y: 0, z: 0},
-			r: 8,
-			function: function (x, y, z) { // sdf - sphere
-				return Math.sqrt(
-					Math.pow(x, 2) +
-					Math.pow(y, 2) +
-					Math.pow(z, 2)
-				) - this.r
-			}
-		},
-		{
-			cords: {x: -10, y: 0 , z: 60},
-			rotation: {x: 0, y: 0, z: 0},
-			side: 10,
-			function: function (x, y, z) { // sdf - cube
-				return Math.max(
-					Math.abs(x),
-					Math.abs(y),
-					Math.abs(z),
-
-				) - this.side / 2;
-			}
-		}
+		// {
+		// 	cords: {x: 5, y: 15, z: 60},
+		// 	rotation: {x: 0, y: 0, z: 0},
+		// 	r: 8,
+		// 	function: function (x, y, z) { // sdf - sphere
+		// 		return Math.sqrt(
+		// 			Math.pow(x, 2) +
+		// 			Math.pow(y, 2) +
+		// 			Math.pow(z, 2)
+		// 		) - this.r
+		// 	}
+		// },
+		// {
+		// 	cords: {x: -10, y: 0 , z: 60},
+		// 	rotation: {x: 0, y: 0, z: 0},
+		// 	side: 10,
+		// 	function: function (x, y, z) { // sdf - cube
+		// 		return Math.max(
+		// 			Math.abs(x),
+		// 			Math.abs(y),
+		// 			Math.abs(z),
+		//
+		// 		) - this.side / 2;
+		// 	}
+		// },
+        {
+            cords: {x: 0, y: 10 , z: 60},
+            rotation: {x: 0, y: 0, z: 0},
+			scale: 20,
+            function: function (x, y, z) { // sdf - teapot
+                return Math.min(
+                    Math.sqrt(x ** 2 + (y - 0.27 * this.scale) ** 2 + z ** 2) - 0.05 * this.scale,
+                    Math.sqrt(x ** 2 + 2.5 * (y ** 2) + z ** 2) - 0.4 * this.scale,
+                    Math.sqrt((Math.sqrt(x ** 2 + z ** 2) - 0.3 * this.scale) ** 2 + (y - 0.18 * this.scale) ** 2) - 0.02 * this.scale,
+                    Math.max(
+                        1.15 * x + y - 0.75 * this.scale,
+                        -y + 0.09 * this.scale,
+                        Math.sqrt(
+                            (Math.sqrt((x - 0.55 * this.scale) ** 2 + (y - 0.09 * this.scale) ** 2) - 0.1 * this.scale) ** 2 +
+                            (z - 0.1 * this.scale) ** 2
+                        ) - 0.04 * this.scale
+                    ),
+                    Math.max(
+                        -(-y + 0.09 * this.scale),
+                        Math.sqrt(
+                            (Math.sqrt((x - 0.35 * this.scale) ** 2 + (y - 0.09 * this.scale) ** 2) - 0.1 * this.scale) ** 2 +
+                            (z - 0.1 * this.scale) ** 2
+                        ) - 0.04 * this.scale
+                    )
+                )
+            }
+        }
 	];
 
 	let view = document.getElementById("view");
@@ -149,15 +176,15 @@
 
 	for(let i = 0; i < view.width / scale; i++){
 		for(let j = 0; j < view.height / scale; j++){
-			let rd = rayDirection(60, view.width / scale, view.height / scale, i, j);
-			let rm = rayMarch(camera.cords, rd);
+            let rd = rayDirection(60, view.width / scale, view.height / scale, i, j);
+            let rm = rayMarch(camera.cords, rd);
 
-			let normal = getNormal(camera.cords.x + rd.x * rm, camera.cords.y + rd.y * rm, camera.cords.z + rd.z * rm);
+            let normal = getNormal(camera.cords.x + rd.x * rm, camera.cords.y + rd.y * rm, camera.cords.z + rd.z * rm);
 
-			let color = getPhongColor(normal, rd);
+            let color = getPhongColor(normal, rd);
 
-			ctx.fillStyle = "rgb(" + color + ", " + color + ", " + color + ")";
-			ctx.fillRect(i * scale, j * scale, scale, scale);
+            ctx.fillStyle = "rgb(" + color + ", " + color + ", " + color + ")";
+            ctx.fillRect(i * scale, j * scale, scale, scale);
 		}
 	}
 
