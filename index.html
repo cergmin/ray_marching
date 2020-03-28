@@ -14,8 +14,8 @@
 	let EPSILON = 0.01;
 
 	let camera = {
-		cords: {x: 0, y: 10, z: 0},
-		direction: {x: 0, y: 0, z: 0}
+		cords: {x: -15, y: -20, z: -30},
+		rotation: {x: -20, y: 30, z: 25}
 	};
 
 
@@ -33,7 +33,7 @@
 		// 	}
 		// },
 		// {
-		// 	cords: {x: -10, y: 0 , z: 60},
+		// 	cords: {x: 0, y: 0 , z: 60},
 		// 	rotation: {x: 0, y: 0, z: 0},
 		// 	side: 10,
 		// 	function: function (x, y, z) { // sdf - cube
@@ -46,7 +46,7 @@
 		// 	}
 		// },
         {
-            cords: {x: 0, y: 10 , z: 60},
+            cords: {x: 0, y: 0 , z: 0},
             rotation: {x: 0, y: 0, z: 0},
 			scale: 20,
             function: function (x, y, z) { // sdf - teapot
@@ -118,11 +118,26 @@
 	 * fieldOfView: vertical field of view in degrees
 	 * screenWidth, screenHeight: resolution of the screen
 	 * pixelCordX, pixelCordY: the x, y coordinate of the pixel on the screen
+	 * rotationX, rotationY, rotationZ: the x, y, z
 	 */
-	function rayDirection(fieldOfView, screenWidth, screenHeight, pixelCordX, pixelCordY) {
+	function rayDirection(fieldOfView, screenWidth, screenHeight,
+						  pixelCordX, pixelCordY,
+						  rotationX, rotationY, rotationZ) {
 		let x = pixelCordX - screenWidth / 2;
 		let y = pixelCordY - screenHeight / 2;
 		let z = screenHeight / Math.tan(Math.radians(fieldOfView) / 2.0);
+
+		// Rotation around the X axis
+		y = y * Math.cos(rotationX) + z * -Math.sin(rotationX);
+		z = y * Math.sin(rotationX) + z * Math.cos(rotationX);
+
+        // Rotation around the Y axis
+        x = x * Math.cos(rotationY) + z * Math.sin(rotationY);
+        z = x * -Math.sin(rotationY) + z * Math.cos(rotationY);
+
+        // Rotation around the Z axis
+        x = x * Math.cos(rotationZ) + y * -Math.sin(rotationZ);
+        y = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
 
 		return Math.normalize(x, y, z);
 	}
@@ -176,7 +191,8 @@
 
 	for(let i = 0; i < view.width / scale; i++){
 		for(let j = 0; j < view.height / scale; j++){
-            let rd = rayDirection(60, view.width / scale, view.height / scale, i, j);
+            let rd = rayDirection(60, view.width / scale, view.height / scale, i, j,
+				Math.radians(camera.rotation.x), Math.radians(camera.rotation.y), Math.radians(camera.rotation.z));
             let rm = rayMarch(camera.cords, rd);
 
             let normal = getNormal(camera.cords.x + rd.x * rm, camera.cords.y + rd.y * rm, camera.cords.z + rd.z * rm);
@@ -195,7 +211,8 @@
 	    let i = e.clientX;
 	    let j = e.clientY;
 
-        let rd = rayDirection(60, view.width, view.height, i, j);
+        let rd = rayDirection(60, view.width, view.height, i, j,
+            Math.radians(camera.rotation.x), Math.radians(camera.rotation.y), Math.radians(camera.rotation.z));
         let rm = rayMarch(camera.cords, rd);
 
         let normal = getNormal(camera.cords.x + rd.x * rm, camera.cords.y + rd.y * rm, camera.cords.z + rd.z * rm);
