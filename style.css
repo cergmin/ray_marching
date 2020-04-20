@@ -7,10 +7,102 @@ body{
     width: 100vw;
     height: 100vh;
     position: relative;
+    overflow: hidden;
 }
 #view{
-    margin: 0 auto;
+    top: 0;
     left: 0;
-    right: 0;
     position: absolute;
+}
+#axes{
+    top: 15px;
+    left: 15px;
+    position: absolute;
+}
+.control_panel{
+    background-color: #181818;
+    color: #fff;
+    width: 350px;
+    height: 100vh;
+    top: 0;
+    right: 0;
+    font-family: sans-serif;
+    position: fixed;
+}
+.control_panel .section{
+    padding: 20px;
+    border-bottom: 1px solid #383838;
+    box-sizing: border-box;
+}
+.control_panel .row-single_input{
+    width: 100%;
+    margin-bottom: 10px;
+    grid-template-columns: 130px 1fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 5px;
+    display: grid;
+}
+.control_panel .row-triple_input{
+    width: 100%;
+    margin-bottom: 10px;
+    grid-template-columns: 70px 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 5px;
+    display: grid;
+}
+.control_panel .row_input{
+    width: 100%;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr;
+    display: grid;
+}
+.control_panel h1{
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+.control_panel h2{
+    width: 100%;
+    height: 25px;
+    line-height: 24px;
+    font-size: 12px;
+}
+.control_panel p{
+    width: 100%;
+    height: 25px;
+    padding: 0px 7px;
+    line-height: 25px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+.control_panel input{
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    height: 25px;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 27px;
+    outline: none;
+    border: none;
+    box-sizing: border-box;
+}
+.control_panel .btn{
+    background-color: #8559f4;
+    height: 22px;
+    width: 100px;
+    margin: 10px auto;
+    padding: 10px;
+    right: 0;
+    left: 0;
+    border-radius: 5px;
+    line-height: 23px;
+    text-align: center;
+    position: absolute;
+    user-select: none;
+    cursor: pointer;
+}
+.control_panel .btn:hover{
+    background-color: #6844c2;
 }

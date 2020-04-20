@@ -1,6 +1,6 @@
 # Ray marching
 ## Demo: https://cergmin.github.io/ray_marching/
-![ray marching example](https://i.imgur.com/KXMdsc6.png)
+![ray marching example](https://i.imgur.com/6QUm2vT.png)
 ## How it works: 
 We send rays, that match every pixel on the screen. Then, with the help of Signed Distance Functions of all objects we detect each of them.
 Phong shading helps us to draw shadows.  
