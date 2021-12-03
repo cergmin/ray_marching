@@ -1,13 +1,14 @@
 // Initialization
 let render_btn = document.getElementById("render_btn");
 
+let RENDER_CELLS_AMOUNT_LIMIT = 18000;
 let MAX_MARCHING_STEPS = 200;
 let MAX_VIEW_DISTANCE = 500;
 let EPSILON = 0.01;
 
-let canvasContainer = document.querySelector('.canvas-container');
+let canvasContainer = document.querySelector(".canvas-container");
 let view = document.getElementById("view");
-let ctx = view.getContext("2d");
+let ctx = view.getContext("2d", { alpha: false });
 
 let axes_canvas = document.getElementById("axes");
 let ctx_axes = axes_canvas.getContext("2d");
@@ -198,7 +199,7 @@ function getPhongColor(normal, rd) {
         (rd.x ** 2 + rd.y ** 2 + rd.z ** 2)
     );
 
-  return -cos_between_vec * 255;
+  return Math.max(-cos_between_vec * 255, 0);
 }
 
 function drawAxes(rot_x, rot_y, rot_z) {
@@ -300,11 +301,11 @@ function syncSettings() {
   drawAxes(camera.rotation.x, camera.rotation.y, camera.rotation.z);
 }
 
-function renderPixel(view, camera, scale, x, y) {
+function getPixelColor(view, camera, x, y) {
   let rd = rayDirection(
     60,
-    view.width / scale,
-    view.height / scale,
+    view.width,
+    view.height,
     x,
     y,
     Math.radians(camera.rotation.x),
@@ -321,13 +322,11 @@ function renderPixel(view, camera, scale, x, y) {
 
   let color = getPhongColor(normal, rd);
 
-  if (rm <= MAX_VIEW_DISTANCE) {
-    ctx.fillStyle = `rgb(${color}, ${color}, ${color})`;
-  } else {
-    ctx.fillStyle = "#131416";
-  }
-
-  ctx.fillRect(x * scale, y * scale, scale, scale);
+  return {
+    r: color,
+    g: color,
+    b: color,
+  };
 }
 
 let currentRenderTimeout;
@@ -336,21 +335,44 @@ function render(view, camera, scale) {
     clearTimeout(currentRenderTimeout);
   }
 
-  function renderScreen(view, camera, scale, i) {
-    for (let j = 0; j < view.height / scale; j++) {
-      renderPixel(view, camera, scale, i, j);
+  function renderScreen(view, camera, scale, cellSize, i = 0) {
+    const cellsInWidth = Math.ceil(view.width / cellSize);
+    const cellsInHeight = Math.ceil(view.height / cellSize);
+    const pixelXInCell = (i * scale) % cellSize;
+    const pixelYInCell = Math.floor((i * scale) / cellSize) * scale;
+
+    for (let cellX = 0; cellX <= cellsInWidth; cellX++) {
+      let pixelX = cellSize * cellX + pixelXInCell;
+
+      if (pixelX >= view.width) {
+        break;
+      }
+
+      for (let cellY = 0; cellY <= cellsInHeight; cellY++) {
+        let pixelY = cellSize * cellY + pixelYInCell;
+
+        if (pixelY >= view.height) {
+          break;
+        }
+
+        let color = getPixelColor(view, camera, pixelX, pixelY);
+        ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+        ctx.fillRect(pixelX, pixelY, scale, scale);
+      }
     }
 
-    i++;
-    if (i < view.width / scale) {
+    if (i < (cellSize / scale) ** 2) {
       currentRenderTimeout = setTimeout(
-        () => renderScreen(view, camera, scale, i),
+        () => renderScreen(view, camera, scale, cellSize, i + 1),
         0
       );
     }
   }
 
-  renderScreen(view, camera, scale, 0);
+  let cellSize = (view.width * view.height) / RENDER_CELLS_AMOUNT_LIMIT;
+  cellSize = Math.ceil(cellSize / scale) * scale;
+
+  renderScreen(view, camera, scale, cellSize);
 }
 
 render_btn.addEventListener("click", () => {
@@ -375,12 +397,12 @@ function initCanvas() {
   view.width = canvasContainer.clientWidth;
   view.height = canvasContainer.clientHeight;
   renderPreview();
-};
+}
 
 const debouncedCanvasInit = debounce(initCanvas, 100);
 
-window.addEventListener('resize', debouncedCanvasInit);
-window.addEventListener('load', debouncedCanvasInit);
+window.addEventListener("resize", debouncedCanvasInit);
+window.addEventListener("load", debouncedCanvasInit);
 
 /**
  * Shows information about pixel, when you click on it
@@ -407,23 +429,16 @@ view.onclick = function (e) {
     camera.position.z + rd.z * rm
   );
 
-  let color =
-    (normal.x * rd.x + normal.y * rd.y + normal.z * rd.z) /
-    Math.sqrt(
-      (normal.x ** 2 + normal.y ** 2 + normal.z ** 2) *
-        (rd.x ** 2 + rd.y ** 2 + rd.z ** 2)
-    );
+  let color = getPhongColor(normal, rd);
 
-  alert(
-    "Color: " +
-      -color +
-      "\nNormal X: " +
-      normal.x +
-      "\nNormal Y: " +
-      normal.y +
-      "\nNormal Z: " +
-      normal.z +
-      "\nRay march: " +
-      rm
-  );
+  console.table({
+    'Color': Math.round(color),
+    'Normal X': Math.round(normal.x * 1000) / 1000,
+    'Normal Y': Math.round(normal.y * 1000) / 1000,
+    'Normal Z': Math.round(normal.z * 1000) / 1000,
+    'Ray march': Math.round(rm * 100) / 100,
+    'Ray direction X': Math.round(rd.x * 1000) / 100,
+    'Ray direction Y': Math.round(rd.y * 1000) / 100,
+    'Ray direction Z': Math.round(rd.z * 1000) / 100,
+  })
 };

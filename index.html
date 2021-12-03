@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Ray Marching</title>
@@ -95,7 +95,13 @@
         <div class="form-group">
           <div class="input-group">
             <label for="render_quality">Quality</label>
-            <input class="input" type="number" id="render_quality" value="1" />
+            <input
+              class="input"
+              type="number"
+              id="render_quality"
+              value="1"
+              min="1"
+            />
           </div>
           <div class="input-group">
             <label for="preview_quality">Preview quality</label>
@@ -104,6 +110,7 @@
               type="number"
               id="preview_quality"
               value="4"
+              min="1"
               onchange="renderPreview()"
             />
           </div>
@@ -114,6 +121,7 @@
               type="number"
               id="marching_epsilon"
               value="0.01"
+              step="0.01"
               onchange="renderPreview()"
             />
           </div>
@@ -124,6 +132,8 @@
               type="number"
               id="max_view_distance"
               value="500"
+              min="0"
+              step="50"
               onchange="renderPreview()"
             />
           </div>
@@ -133,6 +143,7 @@
               class="input"
               type="number"
               id="max_marching_steps"
+              min="1"
               value="200"
               onchange="renderPreview()"
             />

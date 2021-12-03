@@ -50,6 +50,7 @@ body {
   display: flex;
   overflow: hidden;
   justify-content: center;
+  background-color: #000;
 }
 
 .control-panel {
