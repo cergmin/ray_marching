@@ -1,20 +1,20 @@
 // Initialization
-let render_btn = document.getElementById('render_btn');
+let render_btn = document.getElementById("render_btn");
 
 let RENDER_CELLS_AMOUNT_LIMIT = 18000;
 let MAX_MARCHING_STEPS = 200;
 let MAX_VIEW_DISTANCE = 500;
 let EPSILON = 0.01;
 
-let canvasContainer = document.querySelector('.canvas-container');
-let view = document.getElementById('view');
-let ctx = view.getContext('2d', { alpha: false });
+let canvasContainer = document.querySelector(".canvas-container");
+let view = document.getElementById("view");
+let ctx = view.getContext("2d", { alpha: false });
 
-let axes_canvas = document.getElementById('axes');
-let ctx_axes = axes_canvas.getContext('2d');
+let axes_canvas = document.getElementById("axes");
+let ctx_axes = axes_canvas.getContext("2d");
 
 let camera = {
-  position: { x: -15, y: -20, z: -30 },
+  position: { x: -15, y: -25, z: -40 },
   rotation: { x: -20, y: 30, z: 25 },
 };
 
@@ -137,21 +137,39 @@ function rayDirection(
 ) {
   let x = pixelCordX - screenWidth / 2;
   let y = pixelCordY - screenHeight / 2;
-  let z = screenHeight / Math.tan(Math.radians(fieldOfView) / 2.0);
+  let z = screenHeight / Math.tan(radians(fieldOfView) / 2.0);
 
   // Rotation around the X axis
-  y = y * Math.cos(rotationX) + z * -Math.sin(rotationX);
-  z = y * Math.sin(rotationX) + z * Math.cos(rotationX);
+  [[x], [y], [z]] = multiplyMatrix(
+    [
+      [1, 0, 0],
+      [0, Math.cos(rotationX), -Math.sin(rotationX)],
+      [0, Math.sin(rotationX), Math.cos(rotationX)],
+    ],
+    [[x], [y], [z]]
+  );
 
   // Rotation around the Y axis
-  x = x * Math.cos(rotationY) + z * Math.sin(rotationY);
-  z = x * -Math.sin(rotationY) + z * Math.cos(rotationY);
+  [[x], [y], [z]] = multiplyMatrix(
+    [
+      [Math.cos(rotationY), 0, Math.sin(rotationY)],
+      [0, 1, 0],
+      [-Math.sin(rotationY), 0, Math.cos(rotationY)],
+    ],
+    [[x], [y], [z]]
+  );
 
   // Rotation around the Z axis
-  x = x * Math.cos(rotationZ) + y * -Math.sin(rotationZ);
-  y = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
+  [[x], [y], [z]] = multiplyMatrix(
+    [
+      [Math.cos(rotationZ), -Math.sin(rotationZ), 0],
+      [Math.sin(rotationZ), Math.cos(rotationZ), 0],
+      [0, 0, 1],
+    ],
+    [[x], [y], [z]]
+  );
 
-  return Math.normalize(x, y, z);
+  return normalize(x, y, z);
 }
 
 /**
@@ -181,7 +199,7 @@ function rayMarch(ro, rd) {
 }
 
 function getNormal(x, y, z) {
-  return Math.normalize(
+  return normalize(
     minSDF(x + EPSILON, y, z) - minSDF(x - EPSILON, y, z),
     minSDF(x, y + EPSILON, z) - minSDF(x, y - EPSILON, z),
     minSDF(x, y, z + EPSILON) - minSDF(x, y, z - EPSILON)
@@ -208,10 +226,9 @@ function drawAxes(rot_x, rot_y, rot_z) {
   let d = axes_canvas.width;
   let size = axes_canvas.width;
 
-  let x_x =
-    Math.cos(Math.radians(rot_y + 180)) * Math.cos(Math.radians(-rot_z)); // 1
-  let x_y = Math.sin(Math.radians(-rot_z)); // 0
-  let x_z = -Math.sin(Math.radians(rot_y)); // 0
+  let x_x = Math.cos(radians(rot_y + 180)) * Math.cos(radians(-rot_z)); // 1
+  let x_y = Math.sin(radians(-rot_z)); // 0
+  let x_z = -Math.sin(radians(rot_y)); // 0
 
   x_x = x_x * size;
   x_y = x_y * size;
@@ -220,9 +237,9 @@ function drawAxes(rot_x, rot_y, rot_z) {
   x_x = size / 2 + (x_x * d) / (x_z + d);
   x_y = size / 2 - (x_y * d) / (x_z + d);
 
-  let y_x = Math.sin(Math.radians(-rot_z)); // 0
-  let y_y = Math.cos(Math.radians(rot_x)) * Math.cos(Math.radians(-rot_z)); // 1
-  let y_z = -Math.sin(Math.radians(rot_x)); // 0
+  let y_x = Math.sin(radians(-rot_z)); // 0
+  let y_y = Math.cos(radians(rot_x)) * Math.cos(radians(-rot_z)); // 1
+  let y_z = -Math.sin(radians(rot_x)); // 0
 
   y_x = y_x * size;
   y_y = y_y * size;
@@ -231,9 +248,9 @@ function drawAxes(rot_x, rot_y, rot_z) {
   y_x = size / 2 + (y_x * d) / (y_z + d);
   y_y = size / 2 - (y_y * d) / (y_z + d);
 
-  let z_x = Math.sin(Math.radians(rot_y)); // 0
-  let z_y = Math.sin(Math.radians(rot_x)); // 0
-  let z_z = Math.cos(Math.radians(rot_x)) * Math.cos(Math.radians(rot_y)); // 1
+  let z_x = Math.sin(radians(rot_y)); // 0
+  let z_y = Math.sin(radians(rot_x)); // 0
+  let z_z = Math.cos(radians(rot_x)) * Math.cos(radians(rot_y)); // 1
 
   z_x = z_x * size;
   z_y = z_y * size;
@@ -247,7 +264,7 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(x_x, x_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = '#e60000';
+  ctx_axes.strokeStyle = "#e60000";
   ctx_axes.stroke();
 
   // Y
@@ -255,7 +272,7 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(y_x, y_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = '#26e600';
+  ctx_axes.strokeStyle = "#26e600";
   ctx_axes.stroke();
 
   // Z
@@ -263,28 +280,28 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(z_x, z_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = '#0026e6';
+  ctx_axes.strokeStyle = "#0026e6";
   ctx_axes.stroke();
 
   // Center
   ctx_axes.beginPath();
   ctx_axes.ellipse(size / 2, size / 2, 3, 3, 0, 0, 2 * Math.PI);
-  ctx_axes.fillStyle = '#fff';
+  ctx_axes.fillStyle = "#fff";
   ctx_axes.fill();
 }
 
 function syncSettings() {
-  let camera_position_x = document.getElementById('camera_position_x');
-  let camera_position_y = document.getElementById('camera_position_y');
-  let camera_position_z = document.getElementById('camera_position_z');
+  let camera_position_x = document.getElementById("camera_position_x");
+  let camera_position_y = document.getElementById("camera_position_y");
+  let camera_position_z = document.getElementById("camera_position_z");
 
-  let camera_rotation_x = document.getElementById('camera_rotation_x');
-  let camera_rotation_y = document.getElementById('camera_rotation_y');
-  let camera_rotation_z = document.getElementById('camera_rotation_z');
+  let camera_rotation_x = document.getElementById("camera_rotation_x");
+  let camera_rotation_y = document.getElementById("camera_rotation_y");
+  let camera_rotation_z = document.getElementById("camera_rotation_z");
 
-  let marching_epsilon = document.getElementById('marching_epsilon');
-  let max_view_distance = document.getElementById('max_view_distance');
-  let max_marching_steps = document.getElementById('max_marching_steps');
+  let marching_epsilon = document.getElementById("marching_epsilon");
+  let max_view_distance = document.getElementById("max_view_distance");
+  let max_marching_steps = document.getElementById("max_marching_steps");
 
   camera.position.x = parseFloat(camera_position_x.value);
   camera.position.y = parseFloat(camera_position_y.value);
@@ -308,9 +325,9 @@ function getPixelColor(view, camera, x, y) {
     view.height,
     x,
     y,
-    Math.radians(camera.rotation.x),
-    Math.radians(camera.rotation.y),
-    Math.radians(camera.rotation.z)
+    radians(camera.rotation.x),
+    radians(camera.rotation.y),
+    radians(camera.rotation.z)
   );
   let rm = rayMarch(camera.position, rd);
 
@@ -375,12 +392,12 @@ function render(view, camera, scale) {
   renderScreen(view, camera, scale, cellSize);
 }
 
-render_btn.addEventListener('click', () => {
+render_btn.addEventListener("click", () => {
   syncSettings();
   render(
     view,
     camera,
-    parseFloat(document.getElementById('render_quality').value)
+    parseFloat(document.getElementById("render_quality").value)
   );
 });
 
@@ -389,7 +406,7 @@ function renderPreview() {
   render(
     view,
     camera,
-    parseFloat(document.getElementById('preview_quality').value)
+    parseFloat(document.getElementById("preview_quality").value)
   );
 }
 
@@ -401,8 +418,8 @@ function initCanvas() {
 
 const debouncedCanvasInit = debounce(initCanvas, 100);
 
-window.addEventListener('resize', debouncedCanvasInit);
-window.addEventListener('load', debouncedCanvasInit);
+window.addEventListener("resize", debouncedCanvasInit);
+window.addEventListener("load", debouncedCanvasInit);
 
 /**
  * Shows information about pixel, when you click on it
@@ -417,9 +434,9 @@ view.onclick = function (e) {
     view.height,
     i,
     j,
-    Math.radians(camera.rotation.x),
-    Math.radians(camera.rotation.y),
-    Math.radians(camera.rotation.z)
+    radians(camera.rotation.x),
+    radians(camera.rotation.y),
+    radians(camera.rotation.z)
   );
   let rm = rayMarch(camera.position, rd);
 
@@ -432,13 +449,13 @@ view.onclick = function (e) {
   let color = getPhongColor(normal, rd);
 
   console.table({
-    'Color': Math.round(color),
-    'Normal X': Math.round(normal.x * 1000) / 1000,
-    'Normal Y': Math.round(normal.y * 1000) / 1000,
-    'Normal Z': Math.round(normal.z * 1000) / 1000,
-    'Ray march': Math.round(rm * 100) / 100,
-    'Ray direction X': Math.round(rd.x * 1000) / 100,
-    'Ray direction Y': Math.round(rd.y * 1000) / 100,
-    'Ray direction Z': Math.round(rd.z * 1000) / 100,
-  })
+    Color: Math.round(color),
+    "Normal X": Math.round(normal.x * 1000) / 1000,
+    "Normal Y": Math.round(normal.y * 1000) / 1000,
+    "Normal Z": Math.round(normal.z * 1000) / 1000,
+    "Ray march": Math.round(rm * 100) / 100,
+    "Ray direction X": Math.round(rd.x * 1000) / 100,
+    "Ray direction Y": Math.round(rd.y * 1000) / 100,
+    "Ray direction Z": Math.round(rd.z * 1000) / 100,
+  });
 };
