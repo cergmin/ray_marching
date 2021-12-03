@@ -1,17 +1,17 @@
 // Initialization
-let render_btn = document.getElementById("render_btn");
+let render_btn = document.getElementById('render_btn');
 
 let RENDER_CELLS_AMOUNT_LIMIT = 18000;
 let MAX_MARCHING_STEPS = 200;
 let MAX_VIEW_DISTANCE = 500;
 let EPSILON = 0.01;
 
-let canvasContainer = document.querySelector(".canvas-container");
-let view = document.getElementById("view");
-let ctx = view.getContext("2d", { alpha: false });
+let canvasContainer = document.querySelector('.canvas-container');
+let view = document.getElementById('view');
+let ctx = view.getContext('2d', { alpha: false });
 
-let axes_canvas = document.getElementById("axes");
-let ctx_axes = axes_canvas.getContext("2d");
+let axes_canvas = document.getElementById('axes');
+let ctx_axes = axes_canvas.getContext('2d');
 
 let camera = {
   position: { x: -15, y: -20, z: -30 },
@@ -247,7 +247,7 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(x_x, x_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = "#e60000";
+  ctx_axes.strokeStyle = '#e60000';
   ctx_axes.stroke();
 
   // Y
@@ -255,7 +255,7 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(y_x, y_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = "#26e600";
+  ctx_axes.strokeStyle = '#26e600';
   ctx_axes.stroke();
 
   // Z
@@ -263,28 +263,28 @@ function drawAxes(rot_x, rot_y, rot_z) {
   ctx_axes.moveTo(size / 2, size / 2);
   ctx_axes.lineTo(z_x, z_y);
   ctx_axes.lineWidth = 4;
-  ctx_axes.strokeStyle = "#0026e6";
+  ctx_axes.strokeStyle = '#0026e6';
   ctx_axes.stroke();
 
   // Center
   ctx_axes.beginPath();
   ctx_axes.ellipse(size / 2, size / 2, 3, 3, 0, 0, 2 * Math.PI);
-  ctx_axes.fillStyle = "#fff";
+  ctx_axes.fillStyle = '#fff';
   ctx_axes.fill();
 }
 
 function syncSettings() {
-  let camera_position_x = document.getElementById("camera_position_x");
-  let camera_position_y = document.getElementById("camera_position_y");
-  let camera_position_z = document.getElementById("camera_position_z");
+  let camera_position_x = document.getElementById('camera_position_x');
+  let camera_position_y = document.getElementById('camera_position_y');
+  let camera_position_z = document.getElementById('camera_position_z');
 
-  let camera_rotation_x = document.getElementById("camera_rotation_x");
-  let camera_rotation_y = document.getElementById("camera_rotation_y");
-  let camera_rotation_z = document.getElementById("camera_rotation_z");
+  let camera_rotation_x = document.getElementById('camera_rotation_x');
+  let camera_rotation_y = document.getElementById('camera_rotation_y');
+  let camera_rotation_z = document.getElementById('camera_rotation_z');
 
-  let marching_epsilon = document.getElementById("marching_epsilon");
-  let max_view_distance = document.getElementById("max_view_distance");
-  let max_marching_steps = document.getElementById("max_marching_steps");
+  let marching_epsilon = document.getElementById('marching_epsilon');
+  let max_view_distance = document.getElementById('max_view_distance');
+  let max_marching_steps = document.getElementById('max_marching_steps');
 
   camera.position.x = parseFloat(camera_position_x.value);
   camera.position.y = parseFloat(camera_position_y.value);
@@ -375,12 +375,12 @@ function render(view, camera, scale) {
   renderScreen(view, camera, scale, cellSize);
 }
 
-render_btn.addEventListener("click", () => {
+render_btn.addEventListener('click', () => {
   syncSettings();
   render(
     view,
     camera,
-    parseFloat(document.getElementById("render_quality").value)
+    parseFloat(document.getElementById('render_quality').value)
   );
 });
 
@@ -389,7 +389,7 @@ function renderPreview() {
   render(
     view,
     camera,
-    parseFloat(document.getElementById("preview_quality").value)
+    parseFloat(document.getElementById('preview_quality').value)
   );
 }
 
@@ -401,8 +401,8 @@ function initCanvas() {
 
 const debouncedCanvasInit = debounce(initCanvas, 100);
 
-window.addEventListener("resize", debouncedCanvasInit);
-window.addEventListener("load", debouncedCanvasInit);
+window.addEventListener('resize', debouncedCanvasInit);
+window.addEventListener('load', debouncedCanvasInit);
 
 /**
  * Shows information about pixel, when you click on it

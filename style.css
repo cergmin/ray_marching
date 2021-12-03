@@ -1,7 +1,7 @@
 * {
   padding: 0;
   margin: 0;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 html {
@@ -153,98 +153,9 @@ body {
   transform: scale(0.95);
 }
 
-/* input {
-  width: 100%;
-  height: 25px;
-  box-sizing: border-box;
-  padding: 5px;
-  border: none;
-  background-color: #000;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 14px;
-  line-height: 27px;
-  outline: none;
-} */
-
-/*
-.control_panel .row-single_input{
-    display: grid;
-    width: 100%;
-    margin-bottom: 10px;
-    grid-column-gap: 5px;
-    grid-template-columns: 130px 1fr;
-    grid-template-rows: 1fr;
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 3fr 2fr;
+  }
 }
-
-.control_panel .row-triple_input{
-    display: grid;
-    width: 100%;
-    margin-bottom: 10px;
-    grid-column-gap: 5px;
-    grid-template-columns: 70px 1fr 1fr 1fr;
-    grid-template-rows: 1fr;
-}
-
-.control_panel .row_input{
-    display: grid;
-    width: 100%;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: 1fr;
-}
-
-.control_panel h1{
-    width: 100%;
-    margin-bottom: 15px;
-    font-size: 20px;
-}
-
-.control_panel h2{
-    width: 100%;
-    height: 25px;
-    font-size: 12px;
-    line-height: 24px;
-}
-
-.control_panel p{
-    width: 100%;
-    height: 25px;
-    box-sizing: border-box;
-    padding: 0px 7px;
-    font-size: 12px;
-    line-height: 25px;
-}
-
-.control_panel input{
-    width: 100%;
-    height: 25px;
-    box-sizing: border-box;
-    padding: 5px;
-    border: none;
-    background-color: #000;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 14px;
-    line-height: 27px;
-    outline: none;
-}
-
-.control_panel .btn{
-    position: absolute;
-    right: 0;
-    left: 0;
-    width: 100px;
-    height: 22px;
-    padding: 10px;
-    margin: 10px auto;
-    background-color: #8559f4;
-    border-radius: 5px;
-    cursor: pointer;
-    line-height: 23px;
-    text-align: center;
-    user-select: none;
-}
-
-.control_panel .btn:hover{
-    background-color: #6844c2;
-} */
